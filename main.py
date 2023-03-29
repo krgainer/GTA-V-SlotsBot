@@ -45,7 +45,6 @@ def main():
 			else:
 				while targetBet != currentBet:
 					pressSpace()
-					currentBet += betInterval
 					if currentBet + betInterval > maxBet:
 						currentBet = minBet
 					else:
@@ -55,7 +54,10 @@ def main():
 				pressEnter()
 				time.sleep(7)
 				currentChips = currentChips - currentBet
-			print(currentChips)
+			print("Est. balance: ",currentChips)
+			print("Est. profit: ",currentChips - startingChips)
+			print("Real balance: ",resolveChips())
+			print("Real profit: ",currentChips - startingChips)
 
 def identifyGameRules(gameName):
 	gameName = gameName.lower().strip()
@@ -76,7 +78,7 @@ def identifyBestBet(currentChips, currentBet, consecutiveSpins):
 	possibleBet = currentBet
 	bestBet = currentBet
 	while possibleBet <= maxBet:
-		if (currentChips - (possibleBet*consecutiveSpins*2) >= (currentChips/4)):
+		if (currentChips - (possibleBet*consecutiveSpins*5) >= (currentChips/4)):
 			bestBet = possibleBet
 		possibleBet = possibleBet + betInterval
 	return bestBet
@@ -86,15 +88,20 @@ def resolveChips():
 	# Determine the number of chips
 	# Return the number of chips
 	chipValues = []
-	for _ in range(5):
+	xz = 5
+	while xz != 0:
 		screenshot = pyautogui.screenshot("currentBal.png",region=(1464,0, 450, 62))
 		currentBalRaw = pytesseract.image_to_string(Image.open('currentBal.png'), lang='eng')
 		currentBal = re.sub('[^0-9]','', currentBalRaw)
-		chipValues += [currentBal]
-		print (currentBalRaw)
+		if currentBal != "":
+			xz -= 1
+			chipValues += [currentBal]
+		else:
+			print("Weird ass OCR returned")
+	print("OCR returned: ",chipValues)
 	currentBal = mode(chipValues)
 	if startingChips == 0:
-		startingChips = currentBal
+		startingChips = int(currentBal)
 	return currentBal
 
 
