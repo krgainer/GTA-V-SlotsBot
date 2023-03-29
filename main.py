@@ -72,7 +72,27 @@ def identifyGameRules(gameName):
 				return row
 		if gameFound == False:
 			print(f'Game {gameName} not found.')
-			return ["GameNotFound",0,0,0]
+			while True:
+				createNewGame = input("Would you like to create a new game? (y/n)\n").lower().strip()
+				if createNewGame == "":
+					print("Please enter a valid response.")
+				elif createNewGame == "y":
+					return createNewGameRules(gameName)
+				elif createNewGame == "n":
+					return ["GameNotFound",0,0,0]
+
+def createNewGameRules(gameName):
+	newGameName = input("Please enter the name of the new game.\nYou can also press enter to use the initally provided name").lower().strip()
+	if newGameName == "":
+		newGameName = gameName
+	newMinBet = re.sub('[^0-9]','', input("Please enter the minimum bet of the new game.\n").lower().strip())
+	newMaxBet = re.sub('[^0-9]','', input("Please enter the maximum bet of the new game.\n").lower().strip())
+	newBetInterval = re.sub('[^0-9]','', input("Please enter the bet interval of the new game.\n").lower().strip())
+	with open('machineData.csv', mode='a') as csv_file:
+		csv_writer = csv.writer(csv_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+		csv_writer.writerow([newGameName, newMinBet, newMaxBet, newBetInterval])
+	print("New game created.")
+	return [newGameName, newMinBet, newMaxBet, newBetInterval]
 
 def identifyBestBet(currentChips, currentBet, consecutiveSpins):
 	possibleBet = currentBet
