@@ -108,6 +108,7 @@ def resolveChips():
 def pressEnter():
 	# Press the enter key
 	useKey(0x1C)
+	time.sleep(.5)
 
 def pressTab():
 	# Press the tab key
