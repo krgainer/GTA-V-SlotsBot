@@ -32,7 +32,7 @@ def main():
 		if keyboard.is_pressed("h"):
 			currentChips = int(resolveChips())
 			print(currentChips)
-			gamerules = identifyGameRules("diamond miner")
+			gamerules = identifyGameRules(input("Please enter the name of the game you are playing.\n").lower().strip())
 			minBet = int(gamerules[1])
 			maxBet = int(gamerules[2])
 			betInterval = int(gamerules[3])
