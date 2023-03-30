@@ -1,3 +1,4 @@
+import contextlib
 import pyautogui
 import ctypes
 import time
@@ -56,20 +57,22 @@ def main():
 				currentChips = currentChips - currentBet
 			print("Est. balance: ",currentChips)
 			print("Est. profit: ",currentChips - startingChips)
-			print("Real balance: ",resolveChips())
+			currentChips = int(resolveChips())
+			print("Real balance: ",currentChips)
 			print("Real profit: ",currentChips - startingChips)
 
 def identifyGameRules(gameName):
 	gameName = gameName.lower().strip()
-	with open('machineData.csv') as csv_file:
+	with open('machineData.csv',mode="r") as csv_file:
 		csv_reader = csv.reader(csv_file, delimiter=',')
 		line_count = 0
 		gameFound = False
 		for row in csv_reader:
-			if row[0] == gameName:
-				print(f'{row[0]} has a minimum bet of {row[1]} with a maximum bet of {row[2]}, going up in intervals of {row[3]}.')
-				gameFound = True
-				return row
+			with contextlib.suppress(Exception):
+				if row[0] == gameName:
+					print(f'{row[0]} has a minimum bet of {row[1]} with a maximum bet of {row[2]}, going up in intervals of {row[3]}.')
+					gameFound = True
+					return row
 		if gameFound == False:
 			print(f'Game {gameName} not found.')
 			while True:
@@ -90,8 +93,18 @@ def createNewGameRules(gameName):
 	newBetInterval = re.sub('[^0-9]','', input("Please enter the bet interval of the new game.\n").lower().strip())
 	with open('machineData.csv', mode='a') as csv_file:
 		csv_writer = csv.writer(csv_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+		csv_file.write('\n')
 		csv_writer.writerow([newGameName, newMinBet, newMaxBet, newBetInterval])
-	print("New game created.")
+	# Remove any blank lines from the CSV file
+	with open('machineData.csv', mode='r') as csv_file:
+		lines = csv_file.readlines()
+
+	with open('machineData.csv', mode='w') as csv_file:
+		for line in lines:
+			if line.strip():
+				csv_file.write(line)
+	print("New game created. Return to GTA V in the next 5 seconds.")
+	time.sleep(5)
 	return [newGameName, newMinBet, newMaxBet, newBetInterval]
 
 def identifyBestBet(currentChips, currentBet, consecutiveSpins):
